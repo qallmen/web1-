@@ -647,3 +647,130 @@ $(document).ready(function () {
         showToast("Welcome, " + name + "! Account created.", "success");
     });
 });
+
+/* =====================================================================
+   ASSIGNMENT 6, PART 2: Task 4 (scroll progress), Task 5 (counters), Task 6 (submit spinner)
+   ===================================================================== */
+
+// ===== TASK 6: spinner helpers (global, so every form can use them) =====
+
+// Turns the button into the loading state and back
+function setButtonLoading($btn, loading) {
+    if (loading) {
+        if ($btn.data("origHtml") === undefined) {
+            $btn.data("origHtml", $btn.html());   // remember the normal content
+        }
+        $btn.prop("disabled", true)
+            .addClass("is-loading")
+            .html('<span class="btn-spinner" aria-hidden="true"></span>Please wait...');
+    } else {
+        $btn.prop("disabled", false)
+            .removeClass("is-loading")
+            .html($btn.data("origHtml"));
+        $btn.removeData("origHtml");
+    }
+}
+
+// Shows the spinner, waits (simulated server call), restores the button, then runs onDone
+function submitWithSpinner($form, onDone, delay) {
+    var $btn = $form.find('button[type="submit"], button:not([type])').first();
+
+    if ($btn.length === 0 || $form.data("busy")) {
+        return;                                    // blocks repeated submits (also Enter key)
+    }
+
+    $form.data("busy", true);
+    setButtonLoading($btn, true);
+
+    setTimeout(function () {
+        setButtonLoading($btn, false);
+        $form.data("busy", false);
+        if (onDone) {
+            onDone();
+        }
+    }, delay || 2000);
+}
+
+// ===== TASK 4: scroll progress bar =====
+function initScrollProgress() {
+    var $bar = $("<div>", { id: "scrollProgressBar" });
+    $("<div>", { id: "scrollProgress", "aria-hidden": "true" })
+        .append($bar)
+        .prependTo("body");
+
+    function update() {
+        var scrollable = $(document).height() - $(window).height();
+        var percent = scrollable > 0 ? ($(window).scrollTop() / scrollable) * 100 : 0;
+        $bar.css("width", percent + "%").toggleClass("active", percent > 1);
+    }
+
+    $(window).on("scroll resize", update);
+    update();
+}
+
+// ===== TASK 5: animated number counters =====
+function initCounters() {
+    var $section = $(".stats-section").first();
+    if ($section.length === 0) {
+        return;                                    // page has no stats block
+    }
+    var started = false;
+
+    function runCounters() {
+        $(".counter").each(function () {
+            var $el = $(this);
+            var target = Number($el.data("target"));
+            var suffix = $el.data("suffix") || "";
+
+            $({ value: 0 }).animate({ value: target }, {
+                duration: 2000,
+                easing: "swing",
+                step: function (now) {
+                    $el.text(Math.floor(now).toLocaleString("en-US") + suffix);
+                },
+                complete: function () {
+                    $el.text(target.toLocaleString("en-US") + suffix);
+                }
+            });
+        });
+    }
+
+    // Start when the block scrolls into view, only once
+    function check() {
+        if (started) {
+            return;
+        }
+        var viewBottom = $(window).scrollTop() + $(window).height();
+        if (viewBottom > $section.offset().top + 60) {
+            started = true;
+            $(window).off("scroll.counters resize.counters");
+            runCounters();
+        }
+    }
+
+    $(window).on("scroll.counters resize.counters", check);
+    check();
+}
+
+$(document).ready(function () {
+    initScrollProgress();
+    initCounters();
+
+    // Comment form on Breakfast / Lunch pages
+    $("#commentForm").on("submit", function (event) {
+        event.preventDefault();
+        var form = this;
+        var name = $("#cmName").val().trim();
+        var text = $("#cmText").val().trim();
+
+        if (name === "" || text === "") {
+            showToast("Please enter your name and comment.", "error");
+            return;
+        }
+
+        submitWithSpinner($(form), function () {
+            form.reset();
+            showToast("Thanks, " + name + "! Your comment was sent.", "success");
+        });
+    });
+});

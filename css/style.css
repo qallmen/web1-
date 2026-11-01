@@ -990,3 +990,160 @@ img.lazy.loaded {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+
+/* =====================================================
+   ASSIGNMENT 6 PART 2: TASK 4 progress bar, TASK 5 counters, TASK 6 submit spinner
+   ===================================================== */
+
+/* ----- Task 4: scroll progress bar ----- */
+#scrollProgress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: rgba(192, 96, 56, 0.12);
+    z-index: 4000;
+    pointer-events: none;
+}
+
+#scrollProgressBar {
+    position: relative;
+    width: 0;
+    height: 100%;
+    border-radius: 0 6px 6px 0;
+    background: linear-gradient(90deg, #e8a05a, #c06038, #a24d2b, #c06038, #e8a05a);
+    background-size: 240px 100%;
+    animation: progressFlow 3s linear infinite;
+    box-shadow: 0 0 10px rgba(192, 96, 56, 0.6);
+    transition: width 0.1s ease-out;
+}
+
+/* glowing dot at the tip of the bar */
+#scrollProgressBar::after {
+    content: "";
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #c06038;
+    box-shadow: 0 0 8px rgba(192, 96, 56, 0.8);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+#scrollProgressBar.active::after {
+    opacity: 1;
+}
+
+@keyframes progressFlow {
+    from { background-position-x: 0; }
+    to   { background-position-x: 240px; }
+}
+
+body.dark-mode #scrollProgress {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ----- Task 5: animated counters ----- */
+.stats-section {
+    margin: 30px 0;
+}
+
+.stat-box {
+    height: 100%;
+    padding: 22px 12px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #ebdccb;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s, border-color 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-4px);
+    border-color: #c06038;
+}
+
+.stat-number {
+    display: block;
+    font-size: 40px;
+    font-weight: bold;
+    line-height: 1.1;
+    color: #c06038;
+}
+
+.stat-label {
+    margin: 6px 0 0;
+    color: #806f63;
+    font-family: "Segoe UI", sans-serif;
+    font-weight: 600;
+}
+
+body.dark-mode .stat-box {
+    background: #1a1a1a;
+    border-color: #333333;
+}
+
+body.dark-mode .stat-label {
+    color: #cccccc;
+}
+
+/* ----- Task 6: spinner inside the submit button ----- */
+.btn-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    vertical-align: -2px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;   /* gap in the ring makes it look like it spins */
+    border-radius: 50%;
+    animation: btnSpin 0.7s linear infinite;
+}
+
+@keyframes btnSpin {
+    to { transform: rotate(360deg); }
+}
+
+button.is-loading,
+button:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
+/* comment form (used on the Breakfast / Lunch pages) */
+.comment-form {
+    max-width: 500px;
+    margin: auto;
+}
+
+.comment-form label {
+    display: block;
+    margin: 12px 0 4px;
+    font-weight: bold;
+}
+
+.comment-form input,
+.comment-form textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d8c8b4;
+    border-radius: 6px;
+    background: #faf7f2;
+    font-family: inherit;
+}
+
+.comment-form .kitchen-btn {
+    display: block;
+    margin: 16px auto 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #scrollProgressBar { animation: none; }
+}
